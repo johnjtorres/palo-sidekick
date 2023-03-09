@@ -18,5 +18,5 @@ def get_panorama(
 
 def get_device_groups(panorama: Panorama) -> List[DeviceGroup]:
     """Get the list of DeviceGroup objects from a Panorama."""
-    devices = panorama.refresh_devices()
-    return list(filter(lambda d: isinstance(d, DeviceGroup), devices))
+    panorama.refresh_devices(add=True)
+    return panorama.findall(class_type=DeviceGroup)
