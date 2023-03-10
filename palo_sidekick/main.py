@@ -25,7 +25,7 @@ def _list(ctx: click.Context) -> None:
 @click.pass_context
 def list_device_groups(ctx: click.core.Context) -> None:
     """Print a list of device groups."""
-    device_groups = get_device_groups(ctx.panorama)
+    device_groups = get_device_groups(ctx.obj["panorama"])
     click.echo("\n".join([dg.name for dg in device_groups]))
 
 
