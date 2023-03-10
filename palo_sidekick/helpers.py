@@ -1,22 +1,40 @@
 """Helper functions are defined here to be used in multiple commands."""
 
-import os
-from typing import List, Optional
+from __future__ import annotations
 
-from panos.panorama import DeviceGroup, Panorama
+import xml.etree.ElementTree as ET
+from typing import Any, List, Optional
 
-
-def get_panorama(
-    hostname: Optional[str] = None, api_key: Optional[str] = None
-) -> Panorama:
-    """Create a Panorama object from environment variables or arguments."""
-    hostname = hostname if hostname else os.getenv("PANORAMA_HOSTNAME")
-    api_key = api_key if api_key else os.getenv("PANORAMA_KEY")
-    assert None not in (hostname, api_key)
-    return Panorama(hostname=hostname, api_key=api_key)
+import requests
+import urllib3
+from urllib3.exceptions import InsecureRequestWarning
 
 
-def get_device_groups(panorama: Panorama) -> List[DeviceGroup]:
-    """Get the list of DeviceGroup objects from a Panorama."""
-    panorama.refresh_devices(add=True)
-    return panorama.findall(class_type=DeviceGroup)
+class Panorama:
+    def __init__(self, hostname: str, api_key: str) -> None:
+        self.hostname = hostname
+        self.api_key = api_key
+        self.base_url = f"https://{self.hostname}/api"
+        self.session = requests.Session()
+        self.session.headers = {"X-PAN-KEY": self.api_key}
+        self.session.verify = False
+        urllib3.disable_warnings(InsecureRequestWarning)
+
+    def get_device_groups(self) -> str:
+        resource = "/?type=op&cmd=<show></devicegroups></show>"
+        response = self.get(resource)
+        return response.text
+
+    @property
+    def device_groups(self) -> Optional[List[str]]:
+        root = ET.fromstring(self.get_device_groups())
+        device_groups = root.findall(".//devicegroups/entry")
+        if not device_groups:
+            return None
+        return [dg.attrib["name"] for dg in device_groups]
+
+    def get(self, resource: str, **kwargs: Any) -> requests.Response:
+        url = self.base_url + resource
+        response = self.session.get(url, **kwargs)
+        response.raise_for_status()
+        return response

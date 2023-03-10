@@ -1,0 +1,11 @@
+<response status="success">
+    <result>
+        <devicegroups>
+            <entry name="DG-1"></entry>
+            <entry name="DG-2"></entry>
+            <entry name="DG-3"></entry>
+            <entry name="DG-4"></entry>
+            <entry name="DG-5"></entry>
+        </devicegroups>
+    </result>
+</response>
