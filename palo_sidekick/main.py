@@ -1,27 +1,27 @@
 #!/usr/bin/env python3
 
-"""Main CLI application."""
+"""A collection of tools for Palo Alto devices."""
 
 import click
 
 from palo_sidekick.helpers import get_device_groups, get_panorama
 
 
-@click.group()
+@click.group(help=__doc__)
 @click.pass_context
-def cli(ctx: click.core.Context) -> None:
+def cli(ctx: click.Context) -> None:
     """Main CLI group."""
     ctx.ensure_object(dict)
     ctx.obj["panorama"] = get_panorama()
 
 
-@cli.group()
+@cli.group(name="list")
 @click.pass_context
-def list() -> None:
-    """Print lists of objects to the terminal."""
+def _list(ctx: click.Context) -> None:
+    """Print lists of things to the terminal."""
 
 
-@list.command(name="device-groups")
+@_list.command(name="device-groups")
 @click.pass_context
 def list_device_groups(ctx: click.core.Context) -> None:
     """Print a list of device groups."""
