@@ -2,18 +2,21 @@
 
 from __future__ import annotations
 
+import sys
 import xml.etree.ElementTree as ET
 from typing import Any, List, Optional
 
+import click
 import requests
 import urllib3
 from urllib3.exceptions import InsecureRequestWarning
 
 
 class Panorama:
-    def __init__(self, hostname: str, api_key: str) -> None:
+    def __init__(self, hostname: str, api_key: str, timeout: int = 10) -> None:
         self.hostname = hostname
         self.api_key = api_key
+        self.timeout = timeout
         self.base_url = f"https://{self.hostname}/api"
         self.session = requests.Session()
         self.session.headers = {"X-PAN-KEY": self.api_key}
@@ -35,6 +38,20 @@ class Panorama:
 
     def get(self, resource: str, **kwargs: Any) -> requests.Response:
         url = self.base_url + resource
-        response = self.session.get(url, **kwargs)
-        response.raise_for_status()
+
+        try:
+            response = self.session.get(url, timeout=self.timeout, **kwargs)
+        except requests.exceptions.ConnectionError:
+            msg = f"Could not establish a connection to {self.hostname}."
+            click.echo(msg)
+            sys.exit(1)
+
+        try:
+            response.raise_for_status()
+        except requests.exceptions.HTTPError:
+            msg = "Exited due to {code} {reason} error."
+            msg.format(code=response.status_code, reason=response.reason)
+            click.echo(msg)
+            sys.exit(1)
+
         return response
