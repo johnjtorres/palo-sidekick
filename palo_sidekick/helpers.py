@@ -24,7 +24,7 @@ class Panorama:
         urllib3.disable_warnings(InsecureRequestWarning)
 
     def get_device_groups(self) -> str:
-        resource = "/?type=op&cmd=<show></devicegroups></show>"
+        resource = "/?type=op&cmd=<show><devicegroups/></show>"
         response = self.get(resource)
         return response.text
 
