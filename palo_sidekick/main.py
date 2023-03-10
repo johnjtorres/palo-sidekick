@@ -1,10 +1,11 @@
-#!/usr/bin/env python3
-
 """A collection of tools for Palo Alto devices."""
+
+import os
+import sys
 
 import click
 
-from palo_sidekick.helpers import get_device_groups, get_panorama
+from palo_sidekick.helpers import Panorama
 
 
 @click.group(help=__doc__)
@@ -12,7 +13,12 @@ from palo_sidekick.helpers import get_device_groups, get_panorama
 def cli(ctx: click.Context) -> None:
     """Main CLI group."""
     ctx.ensure_object(dict)
-    ctx.obj["panorama"] = get_panorama()
+    hostname = os.getenv("PANORAMA_HOSTNAME", "")
+    key = os.getenv("PANORAMA_KEY", "")
+    if "" in (hostname, key):
+        click.echo("PANORAMA_HOSTNAME or PANORAMA_KEY environment variables not set.")
+        sys.exit(1)
+    ctx.obj = Panorama(hostname, key)
 
 
 @cli.group(name="list")
@@ -25,7 +31,7 @@ def _list(ctx: click.Context) -> None:
 @click.pass_context
 def list_device_groups(ctx: click.core.Context) -> None:
     """Print a list of device groups."""
-    device_groups = get_device_groups(ctx.obj["panorama"])
+    device_groups = ctx.obj.device_groups
     click.echo("\n".join([dg.name for dg in device_groups]))
 
 
