@@ -50,7 +50,7 @@ class Panorama:
             response.raise_for_status()
         except requests.exceptions.HTTPError:
             msg = "Exited due to {code} {reason} error."
-            msg.format(code=response.status_code, reason=response.reason)
+            msg = msg.format(code=response.status_code, reason=response.reason)
             click.echo(msg)
             sys.exit(1)
 
