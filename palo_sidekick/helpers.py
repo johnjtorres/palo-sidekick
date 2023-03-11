@@ -43,7 +43,7 @@ class Panorama:
             response = self.session.get(url, timeout=self.timeout, **kwargs)
         except requests.exceptions.ConnectionError:
             msg = f"Could not establish a connection to {self.hostname}."
-            click.echo(msg)
+            click.echo(msg, err=True)
             sys.exit(1)
 
         try:
@@ -51,7 +51,7 @@ class Panorama:
         except requests.exceptions.HTTPError:
             msg = "Exited due to {code} {reason} error."
             msg = msg.format(code=response.status_code, reason=response.reason)
-            click.echo(msg)
+            click.echo(msg, err=True)
             sys.exit(1)
 
         return response
