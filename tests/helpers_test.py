@@ -27,3 +27,16 @@ def test_device_groups(
     monkeypatch.setattr(Panorama, "get_device_groups", mock_xml)
     expected = ["DG-1", "DG-2", "DG-3", "DG-4", "DG-5"]
     assert expected == panorama.device_groups
+
+
+def test_get_connection_error(capfd: pytest.CaptureFixture, panorama: Panorama) -> None:
+    """
+    Testing program exits gracefully when no connection can be made to
+    Panorama.
+    """
+    with pytest.raises(SystemExit) as sample:
+        panorama.get("/")
+        assert sample.value.code == 1
+    expected = f"Could not establish a connection to {panorama.hostname}.\n"
+    capture = capfd.readouterr()
+    assert expected == capture.err
