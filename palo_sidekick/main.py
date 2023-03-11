@@ -29,7 +29,7 @@ def _list(ctx: click.Context) -> None:
 
 @_list.command(name="device-groups")
 @click.pass_context
-def list_device_groups(ctx: click.core.Context) -> None:
+def list_device_groups(ctx: click.Context) -> None:
     """Print a list of device groups."""
     click.echo("\n".join(sorted(ctx.obj.device_groups)))
 
