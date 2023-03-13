@@ -4,6 +4,8 @@ import os
 from typing import Any, Tuple
 
 import pytest
+import requests
+import requests_mock
 
 from palo_sidekick.helpers import Panorama
 
@@ -55,3 +57,31 @@ def test_get_connection_error(capfd: pytest.CaptureFixture, panorama: Panorama) 
     expected = f"Could not establish a connection to {panorama.hostname}.\n"
     capture = capfd.readouterr()
     assert expected == capture.err
+
+
+def test_get(capfd: pytest.CaptureFixture, panorama: Panorama) -> None:
+    with requests_mock.Mocker() as adapter:
+        url = panorama.base_url + "/"
+        adapter.get(
+            url,
+            [
+                {"exc": requests.exceptions.ConnectionError},
+                {"status_code": 404, "reason": "Not Found"},
+            ],
+        )
+
+        with pytest.raises(SystemExit) as raised:
+            panorama.get("/")
+            assert raised.value.code == 1
+
+        expected = f"Could not establish a connection to {panorama.hostname}.\n"
+        capture = capfd.readouterr()
+        assert expected == capture.err
+
+        with pytest.raises(SystemExit) as raised:
+            panorama.get("/")
+            assert raised.value.code == 1
+
+        expected = "Exited due to 404 Not Found error.\n"
+        capture = capfd.readouterr()
+        assert expected == capture.err
