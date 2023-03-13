@@ -18,7 +18,10 @@ def test_env_vars_are_set(env_vars: Tuple[str, str]) -> None:
 def test_device_groups(
     requests_mock: requests_mock.Mocker, panorama: Panorama, data_dir: str
 ) -> None:
-    """Testing XML for Panorama.device_groups is parsed correctly."""
+    """
+    Testing XML for Panorama.device_groups is parsed correctly if device
+    groups exist.
+    """
     xml_file = "show_devicegroups.xml"
     with open(os.path.join(data_dir, xml_file)) as f:
         xml = f.read()
@@ -33,7 +36,10 @@ def test_device_groups(
 def test_device_groups_returns_none(
     requests_mock: requests_mock.Mocker, panorama: Panorama, data_dir: str
 ) -> None:
-    """Testing XML for Panorama.device_groups is parsed correctly."""
+    """
+    Testing XML for Panorama.device_groups is parsed correctly if no
+    device groups are found.
+    """
     xml_file = "show_devicegroups_none.xml"
     with open(os.path.join(data_dir, xml_file)) as f:
         xml = f.read()
