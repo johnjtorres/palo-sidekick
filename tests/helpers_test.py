@@ -46,20 +46,8 @@ def test_device_groups_returns_none(
     assert panorama.device_groups is None
 
 
-def test_get_connection_error(capfd: pytest.CaptureFixture, panorama: Panorama) -> None:
-    """
-    Testing program exits gracefully when no connection can be made to
-    Panorama.
-    """
-    with pytest.raises(SystemExit) as sample:
-        panorama.get("/")
-        assert sample.value.code == 1
-    expected = f"Could not establish a connection to {panorama.hostname}.\n"
-    capture = capfd.readouterr()
-    assert expected == capture.err
-
-
 def test_get(capfd: pytest.CaptureFixture, panorama: Panorama) -> None:
+    """Test Panorama.get function."""
     with requests_mock.Mocker() as adapter:
         url = panorama.base_url + "/"
         adapter.get(
@@ -67,6 +55,7 @@ def test_get(capfd: pytest.CaptureFixture, panorama: Panorama) -> None:
             [
                 {"exc": requests.exceptions.ConnectionError},
                 {"status_code": 404, "reason": "Not Found"},
+                {"status_code": 200, "reason": "OK"},
             ],
         )
 
@@ -85,3 +74,7 @@ def test_get(capfd: pytest.CaptureFixture, panorama: Panorama) -> None:
         expected = "Exited due to 404 Not Found error.\n"
         capture = capfd.readouterr()
         assert expected == capture.err
+
+        response = panorama.get("/")
+        assert 200 == response.status_code
+        assert "OK" == response.reason
