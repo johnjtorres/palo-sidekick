@@ -1,7 +1,7 @@
 """Tests for the helpers.py file."""
 
 import os
-from typing import Any, Tuple
+from typing import Tuple
 
 import pytest
 import requests
@@ -16,33 +16,31 @@ def test_env_vars_are_set(env_vars: Tuple[str, str]) -> None:
 
 
 def test_device_groups(
-    monkeypatch: pytest.MonkeyPatch, panorama: Panorama, data_dir: str
+    requests_mock: requests_mock.Mocker, panorama: Panorama, data_dir: str
 ) -> None:
     """Testing XML for Panorama.device_groups is parsed correctly."""
     xml_file = "show_devicegroups.xml"
     with open(os.path.join(data_dir, xml_file)) as f:
         xml = f.read()
 
-    def mock_xml(*args: Any, **kwargs: Any) -> str:
-        return xml
-
-    monkeypatch.setattr(Panorama, "get_device_groups", mock_xml)
+    resource = "/?type=op&cmd=<show><devicegroups/></show>"
+    url = panorama.base_url + resource
+    requests_mock.get(url, text=xml)
     expected = ["DG-1", "DG-2", "DG-3", "DG-4", "DG-5"]
     assert expected == panorama.device_groups
 
 
 def test_device_groups_returns_none(
-    monkeypatch: pytest.MonkeyPatch, panorama: Panorama, data_dir: str
+    requests_mock: requests_mock.Mocker, panorama: Panorama, data_dir: str
 ) -> None:
     """Testing XML for Panorama.device_groups is parsed correctly."""
     xml_file = "show_devicegroups_none.xml"
     with open(os.path.join(data_dir, xml_file)) as f:
         xml = f.read()
 
-    def mock_xml(*args: Any, **kwargs: Any) -> str:
-        return xml
-
-    monkeypatch.setattr(Panorama, "get_device_groups", mock_xml)
+    resource = "/?type=op&cmd=<show><devicegroups/></show>"
+    url = panorama.base_url + resource
+    requests_mock.get(url, text=xml)
     assert panorama.device_groups is None
 
 

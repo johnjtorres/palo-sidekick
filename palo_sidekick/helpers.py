@@ -1,7 +1,5 @@
 """Helper functions are defined here to be used in multiple commands."""
 
-from __future__ import annotations
-
 import sys
 import xml.etree.ElementTree as ET
 from typing import Any, List, Optional
@@ -23,14 +21,11 @@ class Panorama:
         self.session.verify = False
         urllib3.disable_warnings(InsecureRequestWarning)
 
-    def get_device_groups(self) -> str:
-        resource = "/?type=op&cmd=<show><devicegroups/></show>"
-        response = self.get(resource)
-        return response.text
-
     @property
     def device_groups(self) -> Optional[List[str]]:
-        root = ET.fromstring(self.get_device_groups())
+        resource = "/?type=op&cmd=<show><devicegroups/></show>"
+        response = self.get(resource)
+        root = ET.fromstring(response.text)
         device_groups = root.findall(".//devicegroups/entry")
         if not device_groups:
             return None
