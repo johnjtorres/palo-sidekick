@@ -29,6 +29,21 @@ def test_device_groups(
     assert expected == panorama.device_groups
 
 
+def test_device_groups_returns_none(
+    monkeypatch: pytest.MonkeyPatch, panorama: Panorama, data_dir: str
+) -> None:
+    """Testing XML for Panorama.device_groups is parsed correctly."""
+    xml_file = "show_devicegroups_none.xml"
+    with open(os.path.join(data_dir, xml_file)) as f:
+        xml = f.read()
+
+    def mock_xml(*args: Any, **kwargs: Any) -> str:
+        return xml
+
+    monkeypatch.setattr(Panorama, "get_device_groups", mock_xml)
+    assert panorama.device_groups is None
+
+
 def test_get_connection_error(capfd: pytest.CaptureFixture, panorama: Panorama) -> None:
     """
     Testing program exits gracefully when no connection can be made to
