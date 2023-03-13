@@ -1,4 +1,4 @@
-"""Tests for the helpers.py file."""
+"""Tests for palo_sidekick.panorama."""
 
 import os
 from typing import Tuple
@@ -7,7 +7,7 @@ import pytest
 import requests
 import requests_mock
 
-from palo_sidekick.helpers import Panorama
+from palo_sidekick.panorama import Panorama
 
 
 def test_env_vars_are_set(env_vars: Tuple[str, str]) -> None:
@@ -15,7 +15,7 @@ def test_env_vars_are_set(env_vars: Tuple[str, str]) -> None:
     assert None not in env_vars
 
 
-def test_device_groups(
+def test_device_groups_success(
     requests_mock: requests_mock.Mocker, panorama: Panorama, data_dir: str
 ) -> None:
     """
@@ -84,7 +84,7 @@ def test_panorama_get_http_error_handled(
         assert expected == capture.err
 
 
-def test_panorama_get_success(capfd: pytest.CaptureFixture, panorama: Panorama) -> None:
+def test_panorama_get_success(panorama: Panorama) -> None:
     """Test for Panorama.get successful response."""
     with requests_mock.Mocker() as adapter:
         url = panorama.base_url + "/"

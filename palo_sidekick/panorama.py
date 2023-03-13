@@ -1,4 +1,4 @@
-"""Helper functions are defined here to be used in multiple commands."""
+"""Defined Panorama class to interact with the XML API."""
 
 import sys
 import xml.etree.ElementTree as ET
