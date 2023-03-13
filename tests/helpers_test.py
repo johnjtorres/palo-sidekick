@@ -46,18 +46,13 @@ def test_device_groups_returns_none(
     assert panorama.device_groups is None
 
 
-def test_get(capfd: pytest.CaptureFixture, panorama: Panorama) -> None:
-    """Test Panorama.get function."""
+def test_panorama_get_connection_error_handled(
+    capfd: pytest.CaptureFixture, panorama: Panorama
+) -> None:
+    """Test for Panorama.get raising ConnectionError."""
     with requests_mock.Mocker() as adapter:
         url = panorama.base_url + "/"
-        adapter.get(
-            url,
-            [
-                {"exc": requests.exceptions.ConnectionError},
-                {"status_code": 404, "reason": "Not Found"},
-                {"status_code": 200, "reason": "OK"},
-            ],
-        )
+        adapter.get(url, exc=requests.exceptions.ConnectionError)
 
         with pytest.raises(SystemExit) as raised:
             panorama.get("/")
@@ -67,6 +62,15 @@ def test_get(capfd: pytest.CaptureFixture, panorama: Panorama) -> None:
         capture = capfd.readouterr()
         assert expected == capture.err
 
+
+def test_panorama_get_http_error_handled(
+    capfd: pytest.CaptureFixture, panorama: Panorama
+) -> None:
+    """Test for Panorama.get raising HTTPError"""
+    with requests_mock.Mocker() as adapter:
+        url = panorama.base_url + "/"
+        adapter.get(url, status_code=404, reason="Not Found")
+
         with pytest.raises(SystemExit) as raised:
             panorama.get("/")
             assert raised.value.code == 1
@@ -74,6 +78,13 @@ def test_get(capfd: pytest.CaptureFixture, panorama: Panorama) -> None:
         expected = "Exited due to 404 Not Found error.\n"
         capture = capfd.readouterr()
         assert expected == capture.err
+
+
+def test_panorama_get_success(capfd: pytest.CaptureFixture, panorama: Panorama) -> None:
+    """Test for Panorama.get successful response."""
+    with requests_mock.Mocker() as adapter:
+        url = panorama.base_url + "/"
+        adapter.get(url, status_code=200, reason="OK")
 
         response = panorama.get("/")
         assert 200 == response.status_code
