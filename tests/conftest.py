@@ -3,7 +3,7 @@ from typing import Optional, Tuple
 
 import pytest
 
-from palo_sidekick.helpers import Panorama
+from palo_sidekick.panorama import Panorama
 
 
 @pytest.fixture(scope="session")

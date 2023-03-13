@@ -5,7 +5,7 @@ import sys
 
 import click
 
-from palo_sidekick.helpers import Panorama
+from palo_sidekick.panorama import Panorama
 
 
 @click.group(help=__doc__)
