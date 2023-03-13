@@ -1,6 +1,13 @@
 name: Python package
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - "main"
+      - "*-testme"
+  pull_request:
+    branches:
+      - "main"
 
 env:
   PANORAMA_HOSTNAME: test
