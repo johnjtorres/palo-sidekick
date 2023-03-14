@@ -1,8 +1,21 @@
 import pytest
 from click.testing import CliRunner
 
-from palo_sidekick.main import cli
+from palo_sidekick.main import cli, validate_environment_variables
 from palo_sidekick.panorama import Panorama
+
+
+@pytest.mark.parametrize("hostname, key", [("", ""), ("A", ""), ("", "A")])
+def test_validate_environment_variables_fail(hostname: str, key: str) -> None:
+    with pytest.raises(SystemExit) as raised:
+        validate_environment_variables(hostname, key)
+    assert raised.value.code == 1
+
+
+def test_validate_environment_variables_success(capfd: pytest.CaptureFixture) -> None:
+    validate_environment_variables("A", "B")
+    capture = capfd.readouterr()
+    assert capture.err == ""
 
 
 def test_list_device_groups(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -15,10 +15,16 @@ def cli(ctx: click.Context) -> None:
     ctx.ensure_object(dict)
     hostname = os.getenv("PANORAMA_HOSTNAME", "")
     key = os.getenv("PANORAMA_KEY", "")
-    if "" in (hostname, key):
-        click.echo("PANORAMA_HOSTNAME or PANORAMA_KEY environment variables not set.")
-        sys.exit(1)
+    validate_environment_variables(hostname, key)
     ctx.obj = Panorama(hostname, key)
+
+
+def validate_environment_variables(hostname: str, key: str) -> None:
+    if not all((hostname, key)):
+        click.echo(
+            "PANORAMA_HOSTNAME or PANORAMA_KEY environment variables not set.", err=True
+        )
+        sys.exit(1)
 
 
 @cli.group(name="list")
