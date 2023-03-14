@@ -31,22 +31,33 @@ def test_validate_environment_variables_success(capfd: pytest.CaptureFixture) ->
     assert capture.err == ""
 
 
-def test_list_device_groups(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Tests listing device groups to the screen when a list is returned."""
-    device_groups = ["DG-1", "DG-2", "DG-3", "DG-4", "DG-5"]
-    monkeypatch.setattr(Panorama, "device_groups", device_groups)
-    result = CliRunner().invoke(cli, ["list", "device-groups"])
-    expected = "\n".join(device_groups) + "\n"
-    assert result.stdout == expected
+def test_list_device_groups(panorama: Panorama, data_dir: str) -> None:
+    """Tests listing device groups successfully."""
+    xml_file = "show_devicegroups.xml"
+    with open(os.path.join(data_dir, xml_file)) as f:
+        xml = f.read()
+    with requests_mock.Mocker() as adapter:
+        resource = "/?type=op&cmd=<show><devicegroups/></show>"
+        url = panorama.base_url + resource
+        adapter.get(url, text=xml)
+        result = CliRunner().invoke(cli, ["list", "device-groups"])
+    assert result.stdout == "DG-1\nDG-2\nDG-3\nDG-4\nDG-5\n"
     assert result.exit_code == 0
 
 
-def test_list_device_groups_none(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_list_device_groups_none(panorama: Panorama, data_dir: str) -> None:
     """
-    Tests listing device groups to the screen when a list is not returned.
+    Tests listing device groups to the screen no device groups can be
+    found.
     """
-    monkeypatch.setattr(Panorama, "device_groups", None)
-    result = CliRunner().invoke(cli, ["list", "device-groups"])
+    xml_file = "show_devicegroups_none.xml"
+    with open(os.path.join(data_dir, xml_file)) as f:
+        xml = f.read()
+    with requests_mock.Mocker() as adapter:
+        resource = "/?type=op&cmd=<show><devicegroups/></show>"
+        url = panorama.base_url + resource
+        adapter.get(url, text=xml)
+        result = CliRunner().invoke(cli, ["list", "device-groups"])
     assert result.stdout == ""
     assert result.exit_code == 0
 
