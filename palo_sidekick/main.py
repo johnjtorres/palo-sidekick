@@ -2,6 +2,7 @@
 
 import os
 import sys
+import xml.etree.ElementTree as ET
 
 import click
 
@@ -41,6 +42,20 @@ def list_device_groups(ctx: click.Context) -> None:
     device_groups = ctx.obj.device_groups
     if device_groups:
         click.echo("\n".join(sorted(ctx.obj.device_groups)))
+
+
+@_list.command(name="firewalls")
+@click.pass_context
+def list_firewalls(ctx: click.Context) -> None:
+    """Print a list of firewalls."""
+    panorama: Panorama = ctx.obj
+    resource = "/?type=op&cmd=<show><devices><all/></devices></show>"
+    response = panorama.get(resource)
+    root = ET.fromstring(response.text)
+    firewalls = root.findall(".//devices/entry/hostname")
+    if not firewalls:
+        return None
+    click.echo("\n".join(sorted([fw.text for fw in firewalls if fw.text])))
 
 
 if __name__ == "__main__":

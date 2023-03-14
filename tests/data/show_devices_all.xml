@@ -1,0 +1,24 @@
+<response status="success">
+    <result>
+        <devices>
+            <entry name="AAA">
+                <connected>no</connected>
+                <hostname>FW-1</hostname>
+                <sw-version>9.0.0</sw-version>
+                <model>PA-440</model>
+            </entry>
+            <entry name="BBB">
+                <connected>yes</connected>
+                <hostname>FW-2</hostname>
+                <sw-version>9.3.0</sw-version>
+                <model>PA-7000</model>
+            </entry>
+            <entry name="CCC">
+                <connected>yes</connected>
+                <hostname>FW-3</hostname>
+                <sw-version>9.1.0</sw-version>
+                <model>PA-5000</model>
+            </entry>
+        </devices>
+    </result>
+</response>
