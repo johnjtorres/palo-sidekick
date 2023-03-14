@@ -1,6 +1,9 @@
 """Tests for the main CLI program."""
 
+import os
+
 import pytest
+import requests_mock
 from click.testing import CliRunner
 
 from palo_sidekick.main import cli, validate_environment_variables
@@ -44,5 +47,39 @@ def test_list_device_groups_none(monkeypatch: pytest.MonkeyPatch) -> None:
     """
     monkeypatch.setattr(Panorama, "device_groups", None)
     result = CliRunner().invoke(cli, ["list", "device-groups"])
+    assert result.stdout == ""
+    assert result.exit_code == 0
+
+
+def test_list_firewalls_success(panorama: Panorama, data_dir: str) -> None:
+    """
+    Test listing firewalls to the screen when the entries exist in the
+    XML.
+    """
+    xml_file = "show_devices_all.xml"
+    with open(os.path.join(data_dir, xml_file)) as f:
+        xml = f.read()
+    with requests_mock.Mocker() as adapter:
+        resource = "/?type=op&cmd=<show><devices><all/></devices></show>"
+        url = panorama.base_url + resource
+        adapter.get(url, text=xml)
+        result = CliRunner().invoke(cli, ["list", "firewalls"])
+    assert result.stdout == "FW-1\nFW-2\nFW-3\n"
+    assert result.exit_code == 0
+
+
+def test_list_firewalls_none(panorama: Panorama, data_dir: str) -> None:
+    """
+    Test listing firewalls to the screen when the entries do not exist
+    in the XML.
+    """
+    xml_file = "show_devices_all_nodevices.xml"
+    with open(os.path.join(data_dir, xml_file)) as f:
+        xml = f.read()
+    with requests_mock.Mocker() as adapter:
+        resource = "/?type=op&cmd=<show><devices><all/></devices></show>"
+        url = panorama.base_url + resource
+        adapter.get(url, text=xml)
+        result = CliRunner().invoke(cli, ["list", "firewalls"])
     assert result.stdout == ""
     assert result.exit_code == 0
