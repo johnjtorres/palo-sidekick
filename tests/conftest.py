@@ -19,7 +19,7 @@ def data_dir() -> str:
 def env_vars() -> Tuple[Optional[str], Optional[str]]:
     """
     Return a tuple of the environment variables needed for this
-    applications.
+    application.
     """
     hostname = os.getenv("PANORAMA_HOSTNAME")
     api_key = os.getenv("PANORAMA_KEY")
