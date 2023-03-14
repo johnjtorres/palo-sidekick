@@ -6,6 +6,8 @@ import xml.etree.ElementTree as ET
 from typing import List
 
 import click
+from rich.console import Console
+from rich.table import Table
 
 from palo_sidekick.panorama import Panorama
 
@@ -62,6 +64,50 @@ def list_firewalls(ctx: click.Context) -> None:
     if not firewalls:
         return None
     click.echo("\n".join(sorted([fw.text for fw in firewalls if fw.text])))
+
+
+@cli.group(name="get")
+@click.pass_context
+def get(ctx: click.Context) -> None:
+    """Get more details on things."""
+
+
+@get.command(name="firewalls")
+@click.pass_context
+def get_firewall_details(ctx: click.Context) -> None:
+    """
+    Get details on firewalls including hostname, software version,
+    model, and vsys list.
+    """
+    ...
+    resource = "/?type=op&cmd=<show><devicegroups/></show>"
+    response = ctx.obj.get(resource)
+    root = ET.fromstring(response.text)
+    firewall_entries = root.findall(".//devicegroups/devices/entry")
+    firewalls = []
+    for entry in firewall_entries:
+        firewalls.append(
+            {
+                "hostname": entry.findtext("hostname"),
+                "model": entry.findtext("model"),
+                "sw_version": entry.findtext("sw-version"),
+                "ha_state": entry.findtext("ha/state"),
+                "vsys_list": "\n".join(
+                    [vsys.attrib["name"] for vsys in entry.findall("vsys/entry")]
+                ),
+            }
+        )
+    table = Table(title="Panorama Managed Firewalls")
+    table.add_column("Hostname")
+    table.add_column("Model")
+    table.add_column("Software")
+    table.add_column("HA State")
+    table.add_column("Vsys")
+
+    for firewall in firewalls:
+        table.add_row(*firewall.values())
+
+    Console().print(table)
 
 
 if __name__ == "__main__":

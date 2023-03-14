@@ -94,3 +94,23 @@ def test_list_firewalls_none(panorama: Panorama, data_dir: str) -> None:
         result = CliRunner().invoke(cli, ["list", "firewalls"])
     assert result.stdout == ""
     assert result.exit_code == 0
+
+
+def test_get_firewall_details_success(panorama: Panorama, data_dir: str) -> None:
+    """Tests getting a table of firewall details successfully."""
+    xml_file = "show_devicegroups.xml"
+    with open(os.path.join(data_dir, xml_file)) as f:
+        xml = f.read()
+    with requests_mock.Mocker() as adapter:
+        resource = "/?type=op&cmd=<show><devicegroups/></show>"
+        url = panorama.base_url + resource
+        adapter.get(url, text=xml)
+        result = CliRunner().invoke(cli, ["get", "firewalls"])
+    assert result.exit_code == 0
+    assert result.stdout.find("Hostname") >= 0
+    assert result.stdout.find("FW-1") >= 0
+    assert result.stdout.find("PA-440") >= 0
+    assert result.stdout.find("9.0.0") >= 0
+    assert result.stdout.find("vsys1") >= 0
+    assert result.stdout.find("vsys2") >= 0
+    assert result.stdout.find("vsys3") >= 0

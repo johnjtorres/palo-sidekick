@@ -6,18 +6,39 @@
                 <hostname>FW-1</hostname>
                 <sw-version>9.0.0</sw-version>
                 <model>PA-440</model>
+                <ha>
+                    <state>active</state>
+                </ha>
+                <vsys>
+                    <entry name="vsys1"></entry>
+                    <entry name="vsys2"></entry>
+                    <entry name="vsys3"></entry>
+                </vsys>
             </entry>
             <entry name="BBB">
                 <connected>yes</connected>
                 <hostname>FW-2</hostname>
                 <sw-version>9.3.0</sw-version>
                 <model>PA-7000</model>
+                <ha>
+                    <state>active</state>
+                </ha>
+                <vsys>
+                    <entry name="vsys1"></entry>
+                    <entry name="vsys2"></entry>
+                </vsys>
             </entry>
             <entry name="CCC">
                 <connected>yes</connected>
                 <hostname>FW-3</hostname>
                 <sw-version>9.1.0</sw-version>
                 <model>PA-5000</model>
+                <ha>
+                    <state>passive</state>
+                </ha>
+                <vsys>
+                    <entry name="vsys1"></entry>
+                </vsys>
             </entry>
         </devices>
     </result>
