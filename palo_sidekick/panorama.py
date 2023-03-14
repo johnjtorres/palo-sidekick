@@ -1,4 +1,4 @@
-"""Defined Panorama class to interact with the XML API."""
+"""Panorama class to interact with the XML API."""
 
 import sys
 import xml.etree.ElementTree as ET
@@ -11,6 +11,11 @@ from urllib3.exceptions import InsecureRequestWarning
 
 
 class Panorama:
+    """
+    Boilerplate code for performing HTTP GET requests on Panorama. Some
+    commonly used calls are defined as functions
+    """
+
     def __init__(self, hostname: str, api_key: str, timeout: int = 10) -> None:
         self.hostname = hostname
         self.api_key = api_key
@@ -23,6 +28,7 @@ class Panorama:
 
     @property
     def device_groups(self) -> Optional[List[str]]:
+        """Get a list of device groups configured on this Panorama."""
         resource = "/?type=op&cmd=<show><devicegroups/></show>"
         response = self.get(resource)
         root = ET.fromstring(response.text)
@@ -32,6 +38,7 @@ class Panorama:
         return [dg.attrib["name"] for dg in device_groups]
 
     def get(self, resource: str, **kwargs: Any) -> requests.Response:
+        """Perform an HTTP GET request on this Panorama."""
         url = self.base_url + resource
 
         try:
