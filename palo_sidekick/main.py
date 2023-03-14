@@ -1,4 +1,4 @@
-"""A collection of tools for Palo Alto devices."""
+"""A collection of CLI tools for Palo Alto devices."""
 
 import os
 import sys
@@ -20,6 +20,7 @@ def cli(ctx: click.Context) -> None:
 
 
 def validate_environment_variables(hostname: str, key: str) -> None:
+    """Checks PANORAMA_HOSTNAME and PANORAMA_KEY variables are defined."""
     if not all((hostname, key)):
         click.echo(
             "PANORAMA_HOSTNAME or PANORAMA_KEY environment variables not set.", err=True
