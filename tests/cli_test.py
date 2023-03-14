@@ -1,3 +1,5 @@
+"""Tests for the main CLI program."""
+
 import pytest
 from click.testing import CliRunner
 
@@ -7,12 +9,20 @@ from palo_sidekick.panorama import Panorama
 
 @pytest.mark.parametrize("hostname, key", [("", ""), ("A", ""), ("", "A")])
 def test_validate_environment_variables_fail(hostname: str, key: str) -> None:
+    """
+    Tests the program exits gracefully if one of the environment
+    variables is missing.
+    """
     with pytest.raises(SystemExit) as raised:
         validate_environment_variables(hostname, key)
     assert raised.value.code == 1
 
 
 def test_validate_environment_variables_success(capfd: pytest.CaptureFixture) -> None:
+    """
+    Tests no error output is produced if valid environment variables are
+    valid.
+    """
     validate_environment_variables("A", "B")
     capture = capfd.readouterr()
     assert capture.err == ""
