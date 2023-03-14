@@ -3,6 +3,7 @@
 import os
 import sys
 import xml.etree.ElementTree as ET
+from operator import itemgetter
 from typing import List
 
 import click
@@ -83,28 +84,27 @@ def get_firewall_details(ctx: click.Context) -> None:
     resource = "/?type=op&cmd=<show><devicegroups/></show>"
     response = ctx.obj.get(resource)
     root = ET.fromstring(response.text)
-    firewall_entries = root.findall(".//devicegroups/devices/entry")
-    firewalls = []
-    for entry in firewall_entries:
-        firewalls.append(
-            {
-                "hostname": entry.findtext("hostname"),
-                "model": entry.findtext("model"),
-                "sw_version": entry.findtext("sw-version"),
-                "ha_state": entry.findtext("ha/state"),
-                "vsys_list": "\n".join(
-                    [vsys.attrib["name"] for vsys in entry.findall("vsys/entry")]
-                ),
-            }
-        )
-    table = Table(title="Panorama Managed Firewalls")
-    table.add_column("Hostname")
-    table.add_column("Model")
-    table.add_column("Software")
-    table.add_column("HA State")
-    table.add_column("Vsys")
+    firewalls = [
+        {
+            "hostname": entry.findtext("hostname"),
+            "model": entry.findtext("model"),
+            "sw_version": entry.findtext("sw-version"),
+            "ha_state": entry.findtext("ha/state"),
+            "vsys_list": "\n".join(
+                [vsys.attrib["name"] for vsys in entry.findall("vsys/entry")]
+            ),
+        }
+        for entry in root.findall(".//devicegroups/entry/devices/entry")
+        if entry.findtext("hostname")
+    ]
 
-    for firewall in firewalls:
+    table = Table(title="Panorama Managed Firewalls")
+    columns = ["Hostname", "Model", "Software", "HA State", "Vsys"]
+    for column in columns:
+        table.add_row(column)
+
+    sorted_firewalls = sorted(firewalls, key=itemgetter("hostname"))
+    for firewall in sorted_firewalls:
         table.add_row(*firewall.values())
 
     Console().print(table)
