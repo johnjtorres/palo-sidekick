@@ -20,5 +20,5 @@ def env_vars() -> Tuple[Optional[str], Optional[str]]:
 
 
 @pytest.fixture(scope="session")
-def panorama(env_vars: Tuple[str, str]) -> Panorama:
-    return Panorama(*env_vars)
+def panorama() -> Panorama:
+    return Panorama(hostname="TEST", api_key="TEST")

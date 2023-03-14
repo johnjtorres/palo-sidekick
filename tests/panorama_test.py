@@ -60,7 +60,7 @@ def test_panorama_get_connection_error_handled(
 
         with pytest.raises(SystemExit) as raised:
             panorama.get("/")
-            assert raised.value.code == 1
+        assert raised.value.code == 1
 
         expected = f"Could not establish a connection to {panorama.hostname}.\n"
         capture = capfd.readouterr()
