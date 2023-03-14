@@ -31,7 +31,9 @@ def _list(ctx: click.Context) -> None:
 @click.pass_context
 def list_device_groups(ctx: click.Context) -> None:
     """Print a list of device groups."""
-    click.echo("\n".join(sorted(ctx.obj.device_groups)))
+    device_groups = ctx.obj.device_groups
+    if device_groups:
+        click.echo("\n".join(sorted(ctx.obj.device_groups)))
 
 
 if __name__ == "__main__":
