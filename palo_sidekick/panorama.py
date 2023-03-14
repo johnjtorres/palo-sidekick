@@ -1,8 +1,7 @@
 """Panorama class to interact with the XML API."""
 
 import sys
-import xml.etree.ElementTree as ET
-from typing import Any, List, Optional
+from typing import Any
 
 import click
 import requests
@@ -25,17 +24,6 @@ class Panorama:
         self.session.headers = {"X-PAN-KEY": self.api_key}
         self.session.verify = False
         urllib3.disable_warnings(InsecureRequestWarning)
-
-    @property
-    def device_groups(self) -> Optional[List[str]]:
-        """Get a list of device groups configured on this Panorama."""
-        resource = "/?type=op&cmd=<show><devicegroups/></show>"
-        response = self.get(resource)
-        root = ET.fromstring(response.text)
-        device_groups = root.findall(".//devicegroups/entry")
-        if not device_groups:
-            return None
-        return [dg.attrib["name"] for dg in device_groups]
 
     def get(self, resource: str, **kwargs: Any) -> requests.Response:
         """Perform an HTTP GET request on this Panorama."""
