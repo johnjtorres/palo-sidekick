@@ -3,6 +3,7 @@
 import os
 import sys
 import xml.etree.ElementTree as ET
+from typing import List
 
 import click
 
@@ -39,9 +40,14 @@ def _list(ctx: click.Context) -> None:
 @click.pass_context
 def list_device_groups(ctx: click.Context) -> None:
     """Print a list of device groups."""
-    device_groups = ctx.obj.device_groups
-    if device_groups:
-        click.echo("\n".join(sorted(ctx.obj.device_groups)))
+    resource = "/?type=op&cmd=<show><devicegroups/></show>"
+    response = ctx.obj.get(resource)
+    root = ET.fromstring(response.text)
+    device_groups = root.findall(".//devicegroups/entry")
+    if not device_groups:
+        return None
+    device_group_names: List[str] = [dg.attrib["name"] for dg in device_groups]
+    click.echo("\n".join(sorted(device_group_names)))
 
 
 @_list.command(name="firewalls")
